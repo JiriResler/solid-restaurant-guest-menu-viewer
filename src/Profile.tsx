@@ -28,24 +28,28 @@ const Profile: React.FC = () => {
 
   async function showPersonalizedMenu() {
     // menu
-    const readingListUrl = 'https://coolrestaurant.solidweb.org/public/menus/my-menu1';
+    const menuWebId = 'https://coolrestaurant.solidweb.org/profile/card#me';
+    const podsUrls: String[] = await getPodUrlAll(menuWebId, { fetch: session.fetch });
+    
+    const restaurantPodUrl = podsUrls[0];
+    const readingListUrl = restaurantPodUrl + 'public/menus/my-menu1';
 
     const savedReadingList = await getSolidDataset(readingListUrl, { fetch: session.fetch });
 
-    let item1 = getThing(savedReadingList, 'https://coolrestaurant.solidweb.org/public/menus/my-menu1#item1');
+    let item1 = getThing(savedReadingList, restaurantPodUrl + 'public/menus/my-menu1#item1');
 
-    let item2 = getThing(savedReadingList, 'https://coolrestaurant.solidweb.org/public/menus/my-menu1#item2');
+    let item2 = getThing(savedReadingList, restaurantPodUrl + 'public/menus/my-menu1#item2');
 
     // alert(item1.url + getStringNoLocale(item1, SCHEMA_INRUPT.name) + item2.url + getStringNoLocale(item2, SCHEMA_INRUPT.name));
 
     // profile
-    const podsUrls: String[] = await getPodUrlAll(session.info.webId, { fetch: session.fetch });
+    const podsUrls2: String[] = await getPodUrlAll(session.info.webId, { fetch: session.fetch });
 
-    const readingListUrl2 = `${podsUrls[0]}dietary-profile/my-profile`;
+    const readingListUrl2 = `${podsUrls2[0]}dietary-profile/my-profile`;
 
     const savedReadingList2 = await getSolidDataset(readingListUrl2, { fetch: session.fetch });
 
-    let item3 = getThing(savedReadingList2, `${podsUrls[0]}dietary-profile/my-profile#user`);
+    let item3 = getThing(savedReadingList2, `${podsUrls2[0]}dietary-profile/my-profile#user`);
 
     // alert("Profile: " + getStringNoLocale(item3, SCHEMA_INRUPT.name));
 
@@ -56,8 +60,13 @@ const Profile: React.FC = () => {
 
     let canUserEatItem1: boolean = userAllergen !== menuItem1Allergen;
     let canUserEatItem2: boolean = userAllergen !== menuItem2Allergen;
+
+    const resultIsCorrect = !canUserEatItem1 && canUserEatItem2
     
-    alert("canUserEatItem1: " + canUserEatItem1 + " canUserEatItem2: " + canUserEatItem2);
+    // alert("canUserEatItem1: " + canUserEatItem1 + " canUserEatItem2: " + canUserEatItem2);
+
+    const resultMessage = resultIsCorrect ? "Success: The result is correct" : "Failure: The result is not correct, something is wrong, take a look at it.";
+    alert(resultMessage);
   } 
 
   return (
