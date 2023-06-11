@@ -8,16 +8,41 @@ const Profile: React.FC = () => {
   const { session } = useSession();
 
   // list of strings
-  const [guestAllergens, setGuestAllergens] = useState([]);
+  const [guestAllergens, setGuestAllergens] = useState('allergen1');
 
-  const [profileLoaded, setProfileLoaded] = useState(false);
+  // array of menu items
+  const [displayedMenu, setDisplayedMenu] = useState([
+    {
+      label: "Item1",
+      ingredients: "ingredient1, ingredient2",
+      allergens: ["allergen1"],
+    },
+    {
+      label: "Item2",
+      ingredients: "ingredient2, ingredient3",
+      allergens: ["allergen2"],
+    }
+  ]);
 
-  const [menuLoaded, setMenuLoaded] = useState(false);
+
 
   async function loadProfile() {
-    setGuestAllergens(['al1']);
-    setProfileLoaded(true);
+    // setGuestAllergens();
   }
+
+  async function loadMenu() {
+
+  }
+
+  function guestCanEatItem(item) {
+    for (let allergen of item.allergens) {
+      if (allergen === guestAllergens) {
+        return false;
+      }
+    }
+
+    return true;
+  } 
 
   return (
     <>
@@ -26,21 +51,30 @@ const Profile: React.FC = () => {
       <button onClick={() => loadProfile()}>Load profile</button>
       <br /><br />
       <p>You are allergic to: {guestAllergens}</p>
-      <button onClick={() => setMenuLoaded(true)}>Load a restaurant menu</button>
-      {menuLoaded &&
-        <>
-          <br /><br />
-          <h2>Menu</h2>
-          <p />
-          <h3 style={{color: 'orange'}}>Item1</h3>
-          <p><b>Ingredient1, ingredient2</b></p>
-          <p>Contains: <p style={{color: 'red'}}>allergen1</p></p>
-          <hr />
-          <h3 style={{color: 'green'}}>Item2</h3>
-          <p><b>Ingredient2, ingredient3</b></p>
-          <p>Contains: allergen2</p>
-        </>
-      }
+      <button onClick={() => loadMenu()}>Load a restaurant menu</button>
+      <br /><br />
+      <h2>Menu</h2>
+      <p />
+
+      <ul>
+        {displayedMenu.map(item =>
+          guestCanEatItem(item) && <li>
+            <h3>{item.label}</h3>
+            <p><b>{item.ingredients}</b></p>
+            <p>Contains: {item.allergens}</p>
+            <hr />
+          </li>)}
+      </ul>
+
+      {/* <>
+        <h3 style={{ color: 'orange' }}>Item1</h3>
+        <p><b>Ingredient1, ingredient2</b></p>
+        <p>Contains: allergen1</p>
+        <hr />
+        <h3 style={{ color: 'green' }}>Item2</h3>
+        <p><b>Ingredient2, ingredient3</b></p>
+        <p>Contains: allergen2</p>
+      </> */}
 
     </>
   );
