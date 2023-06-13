@@ -20,7 +20,7 @@ const Login: React.FC = () => {
 
       <Row>
         <Col className="text-center mt-5 h1">
-          <b>Solid personalized restaurant guest menu viewer</b>
+          <b>Solid restaurant menu viewer</b>
         </Col>
       </Row>
 

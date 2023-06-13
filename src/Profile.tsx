@@ -2,47 +2,90 @@ import React, { useState } from 'react';
 import {
   useSession,
 } from "@inrupt/solid-ui-react";
+import {
+  addUrl,
+  addStringNoLocale,
+  createSolidDataset,
+  createThing,
+  getPodUrlAll,
+  getSolidDataset,
+  getThingAll,
+  getStringNoLocale,
+  removeThing,
+  saveSolidDatasetAt,
+  setThing,
+  SolidDataset,
+  getThing
+} from "@inrupt/solid-client";
+
+import { SCHEMA_INRUPT, RDF, AS } from "@inrupt/vocab-common-rdf";
 
 
 const Profile: React.FC = () => {
   const { session } = useSession();
 
-  // list of strings
-  const [guestAllergens, setGuestAllergens] = useState('allergen1');
+  const [guestAllergens, setGuestAllergens] = useState("");
 
   // array of menu items
-  const [displayedMenu, setDisplayedMenu] = useState([
-    {
-      label: "Item1",
-      ingredients: "ingredient1, ingredient2",
-      allergens: ["allergen1"],
-    },
-    {
-      label: "Item2",
-      ingredients: "ingredient2, ingredient3",
-      allergens: ["allergen2"],
-    }
-  ]);
+  const [displayedMenu, setDisplayedMenu] = useState([]);
 
-
-
-  async function loadProfile() {
-    // setGuestAllergens();
-  }
 
   async function loadMenu() {
+    function delay(time) {
+      return new Promise(resolve => setTimeout(resolve, time));
+    }
 
+    await delay(1000);
+
+    setDisplayedMenu([
+      {
+        label: "Item1",
+        ingredients: "ingredient1, ingredient2",
+        allergens: ["allergen1"],
+      },
+      {
+        label: "Item2",
+        ingredients: "ingredient2, ingredient3",
+        allergens: ["allergen2"],
+      }
+    ]);
   }
 
   function guestCanEatItem(item) {
     for (let allergen of item.allergens) {
-      if (allergen === guestAllergens) {
-        return false;
+      if (allergen === guestAllergens[0]) {
+        return (
+          <>
+            <h3 style={{ color: 'orange' }}>{item.label}</h3>
+            <p><b>{item.ingredients}</b></p>
+            <p style={{ color: 'red' }}>Contains: {item.allergens}</p>
+            <hr />
+          </>
+        );
       }
     }
 
-    return true;
-  } 
+    return (
+      <>
+        <h3 style={{ color: 'green' }}>{item.label}</h3>
+        <p><b>{item.ingredients}</b></p>
+        <p>Contains: {item.allergens}</p>
+        <hr />
+      </>
+    );
+  }
+
+  async function loadProfile() {
+    let userWebId: string = session.info.webId === undefined ? "" : session.info.webId;
+    const podsUrls: String[] = await getPodUrlAll(userWebId, { fetch: session.fetch });
+    const readingListUrl = `${podsUrls[0]}dietary-profile/my-profile`;
+    const savedReadingList = await getSolidDataset(readingListUrl, { fetch: session.fetch });
+
+    let item = getThing(savedReadingList, `${podsUrls[0]}dietary-profile/my-profile#user`);
+
+
+    setGuestAllergens([getStringNoLocale(item, SCHEMA_INRUPT.name)]);
+  }
 
   return (
     <>
@@ -55,27 +98,12 @@ const Profile: React.FC = () => {
       <br /><br />
       <h2>Menu</h2>
       <p />
-
       <ul>
         {displayedMenu.map(item =>
-          guestCanEatItem(item) && <li>
-            <h3>{item.label}</h3>
-            <p><b>{item.ingredients}</b></p>
-            <p>Contains: {item.allergens}</p>
-            <hr />
+          <li>
+            {guestCanEatItem(item)}
           </li>)}
       </ul>
-
-      {/* <>
-        <h3 style={{ color: 'orange' }}>Item1</h3>
-        <p><b>Ingredient1, ingredient2</b></p>
-        <p>Contains: allergen1</p>
-        <hr />
-        <h3 style={{ color: 'green' }}>Item2</h3>
-        <p><b>Ingredient2, ingredient3</b></p>
-        <p>Contains: allergen2</p>
-      </> */}
-
     </>
   );
 };
