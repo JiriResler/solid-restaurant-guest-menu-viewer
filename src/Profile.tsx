@@ -35,7 +35,7 @@ const Profile: React.FC = () => {
       return new Promise(resolve => setTimeout(resolve, time));
     }
 
-    await delay(1000);
+    await delay(2000);
 
     setDisplayedMenu([
       {
@@ -98,7 +98,7 @@ const Profile: React.FC = () => {
       <br /><br />
       <h2>Menu</h2>
       <p />
-      <ul>
+      <ul style={{listStyleType:'none', margin: 0, padding: 0}}>
         {displayedMenu.map(item =>
           <li>
             {guestCanEatItem(item)}
