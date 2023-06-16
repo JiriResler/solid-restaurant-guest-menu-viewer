@@ -15,7 +15,8 @@ import {
   saveSolidDatasetAt,
   setThing,
   SolidDataset,
-  getThing
+  getThing,
+  getStringNoLocaleAll
 } from "@inrupt/solid-client";
 
 import { SCHEMA_INRUPT, RDF, AS } from "@inrupt/vocab-common-rdf";
@@ -74,7 +75,7 @@ const Profile: React.FC = () => {
 
   function guestCanEatItem(item) {
     for (let allergen of item.allergens) {
-      if (allergen === guestAllergens[0]) {
+      if (guestAllergens.includes(allergen)) {
         return (
           <>
             <h3 style={{ color: 'orange' }}>{item.label}</h3>
@@ -112,8 +113,7 @@ const Profile: React.FC = () => {
 
     let item = getThing(savedReadingList, `${podsUrls[0]}dietary-profile/my-profile#user`);
 
-
-    setGuestAllergens([getStringNoLocale(item, SCHEMA_INRUPT.name)]);
+    setGuestAllergens(getStringNoLocaleAll(item, SCHEMA_INRUPT.name));
   }
 
   return (
@@ -122,7 +122,7 @@ const Profile: React.FC = () => {
       <p>Logged in as {session.info.webId}</p>
       <button onClick={() => loadProfile()}>Load profile</button>
       <br /><br />
-      <p>You are allergic to: {guestAllergens}</p>
+      <p>You are allergic to: {guestAllergens.join(', ')}</p>
       <button onClick={() => loadMenu()}>Load a restaurant menu</button>
       <br /><br />
       <h2>Restaurant menu</h2>
