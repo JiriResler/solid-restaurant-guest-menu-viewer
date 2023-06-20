@@ -25,31 +25,40 @@ import { SCHEMA_INRUPT, RDF, AS } from "@inrupt/vocab-common-rdf";
 const Profile: React.FC = () => {
   const { session } = useSession();
 
-  const [guestAllergens, setGuestAllergens] = useState(["nuts"]);
+  const [guestAllergens, setGuestAllergens] = useState(["gluten"]);
 
   // array of menu items
-  const [displayedMenu, setDisplayedMenu] = useState([]);
+  const [displayedMenu, setDisplayedMenu] = useState({
+    
+      name: "",
+      dateValid: "",
+      items: []
+  
+  });
 
 
   async function loadMenu() {
-    function delay(time) {
-      return new Promise(resolve => setTimeout(resolve, time));
-    }
 
-    // await delay(1500);
 
-    setDisplayedMenu([
-      {
+
+    setDisplayedMenu({
+      name: "Daily menu",
+      dateValid: "1.1.2024",
+      items: [{
         label: "Spicy Chicken Wings",
-        ingredients: "chicken, marinade",
+        ingredients: ["chicken", "marinade"],
         allergens: ["soybeans", "milk", "nuts"],
+        diets: [],
+        cost: "5$"
       },
       {
         label: "Pizza Margherita",
-        ingredients: "tomatoes, mozzarella, oregano",
+        ingredients: ["tomatoes", "mozzarella", "oregano"],
         allergens: ["gluten", "milk"],
-      }
-    ]);
+        diets: ["vegan", "vegetarian"],
+        cost: "4$"
+      }]
+  });
   }
 
   function highlightAllergen(allergens, toBeHighlightedAllergen) {
@@ -79,11 +88,13 @@ const Profile: React.FC = () => {
         return (
           <>
             <h3 style={{ color: 'orange' }}>{item.label}</h3>
+            <h4>{item.cost}</h4>
             <p>Ingredients: {item.ingredients}</p>
             <div>
               <span>Allergens: </span>
               {highlightAllergen(item.allergens, allergen)}
             </div>
+            <p>Diets: {item.diets}</p>
             <hr />
           </>
         );
@@ -93,6 +104,7 @@ const Profile: React.FC = () => {
     return (
       <>
         <h3 style={{ color: 'green' }}>{item.label}</h3>
+        <h4>{item.cost}</h4>
         <p>Ingredients: {item.ingredients}</p>
         <div>
           <span>Allergens: </span>
@@ -100,6 +112,7 @@ const Profile: React.FC = () => {
             {item.allergens.join(', ')}
           </span>
         </div>
+        <p>Diets: {item.diets}</p>
         <hr />
       </>
     );
@@ -119,16 +132,16 @@ const Profile: React.FC = () => {
   return (
     <>
       <h1>Solid personalized menu viewer</h1>
-      <p>Logged in as {session.info.webId}</p>
       <button onClick={() => loadProfile()}>Load profile</button>
       <br /><br />
       <p>You are allergic to: {guestAllergens.join(', ')}</p>
       <button onClick={() => loadMenu()}>Load a restaurant menu</button>
       <br /><br />
-      <h2>Restaurant menu</h2>
+      <h2>{displayedMenu.name}</h2>
+      <h3>{displayedMenu.dateValid}</h3>
       <p />
       <ul style={{ listStyleType: 'none', margin: 0, padding: 0 }}>
-        {displayedMenu.map(item =>
+        {displayedMenu.items.map(item =>
           <li>
             {guestCanEatItem(item)}
           </li>)}
