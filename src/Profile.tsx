@@ -26,53 +26,78 @@ import { SCHEMA_INRUPT, RDF, AS } from "@inrupt/vocab-common-rdf";
 const Profile: React.FC = () => {
   const { session } = useSession();
 
-  const [guestAllergens, setGuestAllergens] = useState(["gluten"]);
+  const [guestAllergens, setGuestAllergens] = useState(["nuts", "lupin"]);
 
   // array of menu items
-  const [displayedMenu, setDisplayedMenu] = useState({
-    
+  const [displayedMenu, setDisplayedMenu] = useState(
+    {
       name: "",
       dateValid: "",
       items: []
-  
-  });
+    });
 
 
   async function loadMenu() {
-    const menuDataset = await getSolidDataset("https://coolrestaurant.solidweb.org/public/menus/my-menu1", { fetch: session.fetch })
+    const datasetUrl = "https://coolrestaurant.solidweb.org/public/menus/my-menu1";
+    const chooseWellPrefix = "https://github.com/JiriResler/solid-choose-well-ontology/blob/main/choosewell";
 
-    const menuThing = getThing(menuDataset, "https://coolrestaurant.solidweb.org/public/menus/my-menu1#menu1");
-    const menuItemsUrls = getUrlAll(menuThing, "https://github.com/JiriResler/solid-choose-well-ontology/blob/main/choosewell#hasMenuItem");
-    const item1Url = menuItemsUrls[0];
+    const menuDataset = await getSolidDataset(datasetUrl, { fetch: session.fetch });
 
-    const item1Thing = getThing(menuDataset, item1Url);
-    alert(getStringNoLocale(item1Thing, "https://github.com/JiriResler/solid-choose-well-ontology/blob/main/choosewell#hasName"))
+    const menuThing = getThing(menuDataset, `${datasetUrl}#menu1`);
+    
+    let newMenu = {};
 
-    setDisplayedMenu({
-      name: "Daily menu",
-      dateValid: "1.1.2024",
-      items: [{
-        label: "Spicy Chicken Wings",
-        ingredients: ["chicken", "marinade"],
-        allergens: ["soybeans", "milk", "nuts"],
-        diets: [],
-        cost: "5$"
-      },
-      {
-        label: "Pizza Margherita",
-        ingredients: ["tomatoes", "mozzarella", "oregano"],
-        allergens: ["gluten", "milk"],
-        diets: ["vegan", "vegetarian"],
-        cost: "4$"
-      }]
-  });
+    newMenu.name = getStringNoLocale(menuThing, `${chooseWellPrefix}#menuName`);
+
+    newMenu.dateValid = getStringNoLocale(menuThing, `${chooseWellPrefix}#validOn`);
+
+    let menuItems = [];
+    
+    const menuItemsUrls = getUrlAll(menuThing, `${chooseWellPrefix}#hasMenuItem`);
+
+    for (const menuItemUrl of menuItemsUrls) {
+      let menuItem = {};
+      let itemThing = getThing(menuDataset, menuItemUrl);
+
+      menuItem.label = getStringNoLocale(itemThing, `${chooseWellPrefix}#hasName`);
+      menuItem.cost = getStringNoLocale(itemThing, `${chooseWellPrefix}#costs`);
+
+      menuItem.ingredients = getStringNoLocaleAll(itemThing, `${chooseWellPrefix}#hasIngredient`);
+      menuItem.allergens = getStringNoLocaleAll(itemThing, `${chooseWellPrefix}#hasAllergen`);
+      menuItem.diets = getStringNoLocaleAll(itemThing, `${chooseWellPrefix}#isPartOf`);
+
+      menuItems.push(menuItem);
+    }
+
+    newMenu.items = menuItems;
+
+    setDisplayedMenu(newMenu);
+
+    // setDisplayedMenu({
+    //   name: "Daily menu",
+    //   dateValid: "1.1.2024",
+    //   items: [{
+    //     label: "Spicy Chicken Wings",
+    //     ingredients: ["chicken", "marinade"],
+    //     allergens: ["soybeans", "milk", "nuts"],
+    //     diets: [],
+    //     cost: "5$"
+    //   },
+    //   {
+    //     label: "Pizza Margherita",
+    //     ingredients: ["tomatoes", "mozzarella", "oregano"],
+    //     allergens: ["gluten", "milk"],
+    //     diets: ["vegan", "vegetarian"],
+    //     cost: "4$"
+    //   }]
+    // });
   }
 
   function highlightAllergen(allergens, toBeHighlightedAllergen) {
     return (
       <span>
         {allergens.map(allergen => {
-          if (allergens.indexOf(allergen) === (allergens.length-1)) {
+          if (allergens.indexOf(allergen) === (allergens.length - 1)) {
             if (allergen === toBeHighlightedAllergen) {
               return <><span style={{ color: 'red' }}>{allergen}</span></>;
             } else {
