@@ -16,7 +16,8 @@ import {
   setThing,
   SolidDataset,
   getThing,
-  getStringNoLocaleAll
+  getStringNoLocaleAll,
+  getUrlAll
 } from "@inrupt/solid-client";
 
 import { SCHEMA_INRUPT, RDF, AS } from "@inrupt/vocab-common-rdf";
@@ -38,8 +39,14 @@ const Profile: React.FC = () => {
 
 
   async function loadMenu() {
+    const menuDataset = await getSolidDataset("https://coolrestaurant.solidweb.org/public/menus/my-menu1", { fetch: session.fetch })
 
+    const menuThing = getThing(menuDataset, "https://coolrestaurant.solidweb.org/public/menus/my-menu1#menu1");
+    const menuItemsUrls = getUrlAll(menuThing, "https://github.com/JiriResler/solid-choose-well-ontology/blob/main/choosewell#hasMenuItem");
+    const item1Url = menuItemsUrls[0];
 
+    const item1Thing = getThing(menuDataset, item1Url);
+    alert(getStringNoLocale(item1Thing, "https://github.com/JiriResler/solid-choose-well-ontology/blob/main/choosewell#hasName"))
 
     setDisplayedMenu({
       name: "Daily menu",
