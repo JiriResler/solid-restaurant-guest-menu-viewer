@@ -44,7 +44,7 @@ const Profile: React.FC = () => {
     const menuDataset = await getSolidDataset(datasetUrl, { fetch: session.fetch });
 
     const menuThing = getThing(menuDataset, `${datasetUrl}#menu1`);
-    
+
     let newMenu = {};
 
     newMenu.name = getStringNoLocale(menuThing, `${chooseWellPrefix}#menuName`);
@@ -52,7 +52,7 @@ const Profile: React.FC = () => {
     newMenu.dateValid = getStringNoLocale(menuThing, `${chooseWellPrefix}#validOn`);
 
     let menuItems = [];
-    
+
     const menuItemsUrls = getUrlAll(menuThing, `${chooseWellPrefix}#hasMenuItem`);
 
     for (const menuItemUrl of menuItemsUrls) {
@@ -72,25 +72,6 @@ const Profile: React.FC = () => {
     newMenu.items = menuItems;
 
     setDisplayedMenu(newMenu);
-
-    // setDisplayedMenu({
-    //   name: "Daily menu",
-    //   dateValid: "1.1.2024",
-    //   items: [{
-    //     label: "Spicy Chicken Wings",
-    //     ingredients: ["chicken", "marinade"],
-    //     allergens: ["soybeans", "milk", "nuts"],
-    //     diets: [],
-    //     cost: "5$"
-    //   },
-    //   {
-    //     label: "Pizza Margherita",
-    //     ingredients: ["tomatoes", "mozzarella", "oregano"],
-    //     allergens: ["gluten", "milk"],
-    //     diets: ["vegan", "vegetarian"],
-    //     cost: "4$"
-    //   }]
-    // });
   }
 
   function highlightAllergen(allergens, toBeHighlightedAllergen) {
@@ -121,12 +102,12 @@ const Profile: React.FC = () => {
           <>
             <h3 style={{ color: 'orange' }}>{item.label}</h3>
             <h4>{item.cost}</h4>
-            <p>Ingredients: {item.ingredients}</p>
+            <p>Ingredients: {item.ingredients.join(", ")}</p>
             <div>
               <span>Allergens: </span>
               {highlightAllergen(item.allergens, allergen)}
             </div>
-            <p>Diets: {item.diets}</p>
+            <p>Diets: {item.diets.join(", ")}</p>
             <hr />
           </>
         );
@@ -137,14 +118,14 @@ const Profile: React.FC = () => {
       <>
         <h3 style={{ color: 'green' }}>{item.label}</h3>
         <h4>{item.cost}</h4>
-        <p>Ingredients: {item.ingredients}</p>
+        <p>Ingredients: {item.ingredients.join(", ")}</p>
         <div>
           <span>Allergens: </span>
           <span>
             {item.allergens.join(', ')}
           </span>
         </div>
-        <p>Diets: {item.diets}</p>
+        <p>Diets: {item.diets.join(", ")}</p>
         <hr />
       </>
     );
